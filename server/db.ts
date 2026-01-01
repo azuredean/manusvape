@@ -1,6 +1,19 @@
-import { eq } from "drizzle-orm";
+import { eq, gte, lte, desc, and } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users } from "../drizzle/schema";
+import {
+  InsertUser,
+  users,
+  products,
+  orders,
+  orderItems,
+  userAddresses,
+  ageVerifications,
+  InsertProduct,
+  InsertOrder,
+  InsertOrderItem,
+  InsertUserAddress,
+  InsertAgeVerification,
+} from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -89,4 +102,132 @@ export async function getUserByOpenId(openId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-// TODO: add feature queries here as your schema grows.
+// ============ PRODUCTS ============
+export async function getAllProducts() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(products);
+}
+
+export async function getProductById(productId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(products).where(eq(products.id, productId)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function getProductsByFilters(filters: {
+  brand?: string;
+  flavor?: string;
+  nicotineContent?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  category?: string;
+  limit?: number;
+  offset?: number;
+}) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const conditions: any[] = [eq(products.isActive, 1)];
+
+  if (filters.brand) {
+    conditions.push(eq(products.brand, filters.brand));
+  }
+  if (filters.flavor) {
+    conditions.push(eq(products.flavor, filters.flavor));
+  }
+  if (filters.nicotineContent) {
+    conditions.push(eq(products.nicotineContent, filters.nicotineContent));
+  }
+  if (filters.category) {
+    conditions.push(eq(products.category, filters.category));
+  }
+  if (filters.minPrice !== undefined) {
+    conditions.push(gte(products.price, filters.minPrice));
+  }
+  if (filters.maxPrice !== undefined) {
+    conditions.push(lte(products.price, filters.maxPrice));
+  }
+
+  const limit = filters.limit || 50;
+  const offset = filters.offset || 0;
+
+  return await db
+    .select()
+    .from(products)
+    .where(and(...conditions))
+    .limit(limit)
+    .offset(offset);
+}
+
+// ============ ORDERS ============
+export async function createOrder(order: InsertOrder) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.insert(orders).values(order);
+}
+
+export async function getOrdersByUserId(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(orders).where(eq(orders.userId, userId));
+}
+
+export async function getOrderById(orderId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(orders).where(eq(orders.id, orderId)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+// ============ ORDER ITEMS ============
+export async function getOrderItems(orderId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(orderItems).where(eq(orderItems.orderId, orderId));
+}
+
+// ============ USER ADDRESSES ============
+export async function getUserAddresses(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(userAddresses).where(eq(userAddresses.userId, userId));
+}
+
+export async function createUserAddress(address: InsertUserAddress) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.insert(userAddresses).values(address);
+}
+
+// ============ AGE VERIFICATIONS ============
+export async function recordAgeVerification(verification: InsertAgeVerification) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.insert(ageVerifications).values(verification);
+}
+
+export async function getLatestAgeVerification(userId?: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  if (userId) {
+    const result = await db
+      .select()
+      .from(ageVerifications)
+      .where(eq(ageVerifications.userId, userId))
+      .orderBy(desc(ageVerifications.createdAt))
+      .limit(1);
+    return result.length > 0 ? result[0] : undefined;
+  }
+  return undefined;
+}
+
+// ============ CARTS ============
+export async function getCartBySessionId(sessionId: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  // Note: carts table not fully implemented yet
+  return undefined;
+}
