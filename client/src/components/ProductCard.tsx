@@ -2,24 +2,30 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ShoppingCart, Heart } from "lucide-react";
 import { useState } from "react";
+import { useCart } from "@/contexts/CartContext";
+import { toast } from "sonner";
 import type { Product } from "@/data/products";
 
 interface ProductCardProps {
   product: Product;
-  onAddToCart?: (product: Product) => void;
   onWishlist?: (product: Product) => void;
 }
 
 export default function ProductCard({
   product,
-  onAddToCart,
   onWishlist,
 }: ProductCardProps) {
   const [isWishlisted, setIsWishlisted] = useState(false);
+  const { addItem } = useCart();
 
   const handleWishlist = () => {
     setIsWishlisted(!isWishlisted);
     onWishlist?.(product);
+  };
+
+  const handleAddToCart = () => {
+    addItem(product, 1);
+    toast.success(`${product.name} added to cart!`);
   };
 
   const priceAUD = (product.price / 100).toFixed(2);
@@ -105,7 +111,7 @@ export default function ProductCard({
             </p>
           </div>
           <Button
-            onClick={() => onAddToCart?.(product)}
+            onClick={handleAddToCart}
             className="bg-blue-600 hover:bg-blue-700 text-white flex-1 gap-2"
             size="sm"
           >

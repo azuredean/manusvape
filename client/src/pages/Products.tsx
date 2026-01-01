@@ -73,11 +73,6 @@ export default function Products() {
     return filtered;
   }, [searchQuery, selectedBrand, selectedCategory, sortBy]);
 
-  const handleAddToCart = (product: Product) => {
-    // TODO: Implement cart functionality
-    console.log("Added to cart:", product);
-  };
-
   const handleWishlist = (product: Product) => {
     // TODO: Implement wishlist functionality
     console.log("Wishlist toggled:", product);
@@ -204,7 +199,6 @@ export default function Products() {
               <ProductCard
                 key={product.id}
                 product={product}
-                onAddToCart={handleAddToCart}
                 onWishlist={handleWishlist}
               />
             ))}
