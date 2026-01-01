@@ -7,7 +7,10 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import Layout from "./components/Layout";
 import Home from "./pages/Home";
 import Products from "./pages/Products";
+import ProductDetail from "./pages/ProductDetail";
 import Cart from "./pages/Cart";
+import Checkout from "./pages/Checkout";
+import OrderConfirmation from "./pages/OrderConfirmation";
 import AgeGate from "./pages/AgeGate";
 import Compliance from "./pages/Compliance";
 
@@ -18,7 +21,10 @@ function Router() {
       <Switch>
         <Route path={"\\"} component={Home} />
         <Route path={"/products"} component={Products} />
+        <Route path={"/product/:id"} component={ProductDetail} />
         <Route path={"/cart"} component={Cart} />
+        <Route path={"/checkout"} component={Checkout} />
+        <Route path={"/order-confirmation"} component={OrderConfirmation} />
         <Route path={"/age-gate"} component={AgeGate} />
         <Route path={"/compliance"} component={Compliance} />
         <Route path={"/404"} component={NotFound} />

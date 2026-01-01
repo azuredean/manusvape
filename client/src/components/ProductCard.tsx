@@ -2,6 +2,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ShoppingCart, Heart } from "lucide-react";
 import { useState } from "react";
+import { useLocation } from "wouter";
 import { useCart } from "@/contexts/CartContext";
 import { toast } from "sonner";
 import type { Product } from "@/data/products";
@@ -15,6 +16,7 @@ export default function ProductCard({
   product,
   onWishlist,
 }: ProductCardProps) {
+  const [, navigate] = useLocation();
   const [isWishlisted, setIsWishlisted] = useState(false);
   const { addItem } = useCart();
 
@@ -33,7 +35,10 @@ export default function ProductCard({
   return (
     <Card className="group overflow-hidden bg-white hover:shadow-lg transition-all duration-300 h-full flex flex-col">
       {/* Image Container */}
-      <div className="relative w-full h-64 bg-gradient-to-br from-slate-100 to-slate-200 overflow-hidden">
+      <div
+        className="relative w-full h-64 bg-gradient-to-br from-slate-100 to-slate-200 overflow-hidden cursor-pointer"
+        onClick={() => navigate(`/product/${product.id}`)}
+      >
         <img
           src={product.imageUrl}
           alt={product.name}
@@ -75,7 +80,10 @@ export default function ProductCard({
         </div>
 
         {/* Product Name */}
-        <h3 className="font-bold text-slate-900 mb-2 line-clamp-2 text-sm">
+        <h3
+          className="font-bold text-slate-900 mb-2 line-clamp-2 text-sm hover:text-blue-600 transition-colors cursor-pointer"
+          onClick={() => navigate(`/product/${product.id}`)}
+        >
           {product.name}
         </h3>
 
